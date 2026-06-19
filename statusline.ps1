@@ -1,4 +1,4 @@
-# Claude Code Status Line — Windows / PowerShell Edition
+﻿# Claude Code Status Line — Windows / PowerShell Edition
 # Windows port inspired by https://github.com/isaacaudet/claude-code-statusline
 # MIT License — see LICENSE
 
@@ -72,15 +72,16 @@ function Build-Bar([int]$pct, [int]$width) {
     return "${color}$('█' * $filled)${dim}$('░' * $empty)${reset}"
 }
 
-# Convert Unix epoch to reset time: "2:30pm" if today, "jun 8" if a future date
+# Convert Unix epoch to reset time: "2:30pm" if within 12 h, "jun 8" if further
 function Format-ResetTime([long]$epoch) {
     if (-not $epoch) { return $null }
-    $reset = [DateTimeOffset]::FromUnixTimeSeconds($epoch).LocalDateTime
-    if ($reset -le [DateTime]::Now) { return 'now' }
-    if ($reset.Date -eq [DateTime]::Today) {
-        return $reset.ToString('h:mmtt', $enUS).ToLower()
+    $resetDt = [DateTimeOffset]::FromUnixTimeSeconds($epoch).LocalDateTime
+    $now = [DateTime]::Now
+    if ($resetDt -le $now) { return 'now' }
+    if (($resetDt - $now).TotalHours -lt 12) {
+        return $resetDt.ToString('h:mmtt', $enUS).ToLower()
     }
-    return $reset.ToString('MMM d', $enUS).ToLower()
+    return $resetDt.ToString('MMM d', $enUS).ToLower()
 }
 
 function Get-GitInfo([string]$dir) {
