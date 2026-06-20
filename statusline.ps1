@@ -10,10 +10,14 @@ $SHOW_RATE_LIMITS = $true   # 5h / 7d usage bars (requires Claude Code v2.1.80+)
 $BRANCH_MAX_LEN   = 28      # max branch name display length
 $GIT_CACHE_SECS   = 10      # git status cache TTL in seconds (increase for large repos)
 $TOKEN_BAR_WIDTH  = 8       # bar width in full-width mode
+$DEBUG_LOG        = $false  # write debug info to $env:TEMP\claude_statusline_debug.txt
 
 # ===== read stdin =====
-$raw = $input | Out-String
+[Console]::InputEncoding = [System.Text.Encoding]::UTF8
+$raw = [Console]::In.ReadToEnd()
+$dbg = "$env:TEMP\claude_statusline_debug.txt"
 if ([string]::IsNullOrWhiteSpace($raw)) {
+    if ($DEBUG_LOG) { "[$(Get-Date -f 'HH:mm:ss')] EMPTY stdin" | Out-File -Append -Encoding UTF8 $dbg }
     [Console]::Write('Claude')
     exit 0
 }
@@ -21,7 +25,14 @@ if ([string]::IsNullOrWhiteSpace($raw)) {
 try {
     $json = $raw | ConvertFrom-Json
 } catch {
-    [Console]::Write('Claude')
+    if ($DEBUG_LOG) { "[$(Get-Date -f 'HH:mm:ss')] JSON PARSE ERROR: $_`nRAW: $raw" | Out-File -Append -Encoding UTF8 $dbg }
+    # session_name may contain garbled chars with embedded quotes that break JSON parsing.
+    # model.display_name is always well-formed ASCII, so extract it via regex as fallback.
+    if ($raw -match '"display_name"\s*:\s*"([^"]+)"') {
+        [Console]::Write($Matches[1])
+    } else {
+        [Console]::Write('Claude')
+    }
     exit 0
 }
 
@@ -133,7 +144,10 @@ function Get-GitInfo([string]$dir) {
 }
 
 # ===== parse JSON =====
-$model_name   = if ($json.model.display_name) { [string]$json.model.display_name } else { 'Claude' }
+$model_name = if ($json.model.display_name) { [string]$json.model.display_name } else {
+    if ($DEBUG_LOG) { "[$(Get-Date -f 'HH:mm:ss')] NO display_name — model obj: $($json.model | ConvertTo-Json -Compress -Depth 2)" | Out-File -Append -Encoding UTF8 $dbg }
+    'Claude'
+}
 $cwd          = [string]$json.cwd
 $cost_usd     = $json.cost.total_cost_usd
 
