@@ -5,6 +5,7 @@
 # ===== config =====
 $SHOW_GIT         = $true   # git branch, dirty state, ahead/behind
 $SHOW_TOKENS      = $true   # context window usage bar
+$SHOW_EFFORT      = $true   # reasoning effort level (low/medium/high/xhigh/max)
 $SHOW_THINKING    = $true   # extended thinking indicator
 $SHOW_RATE_LIMITS = $true   # 5h / 7d usage bars (requires Claude Code v2.1.80+)
 $BRANCH_MAX_LEN   = 28      # max branch name display length
@@ -56,6 +57,12 @@ $magenta = "$ESC[38;2;198;120;221m"
 $dim     = "$ESC[2m"
 $reset   = "$ESC[0m"
 $sep     = " ${dim}│${reset} "
+
+# effort level palette (Claude Code dark-theme tokens; max uses the rainbow palette)
+$effort_glyph   = @{ low='○'; medium='◐'; high='●'; xhigh='◉'; max='◈' }
+$effort_rgb     = @{ low='255;193;7'; medium='78;186;101'; high='177;185;249'; xhigh='175;135;255' }
+$effort_rainbow = @('235;95;87','245;139;87','250;195;95','145;200;130','130;170;220','155;130;200','200;130;180')
+function Color-RGB([string]$rgb) { "$ESC[38;2;${rgb}m" }
 
 # ===== helpers =====
 $enUS = [System.Globalization.CultureInfo]::new('en-US')
@@ -150,6 +157,7 @@ $model_name = if ($json.model.display_name) { [string]$json.model.display_name }
 }
 $cwd          = [string]$json.cwd
 $cost_usd     = $json.cost.total_cost_usd
+$effort_level = if ($json.effort.level) { [string]$json.effort.level } else { '' }
 
 $ctx          = $json.context_window
 $size         = [long]($ctx.context_window_size -as [long])
@@ -199,6 +207,25 @@ if ($model_name -match 'Haiku') { $model_color = $cyan  }
 
 $display_model = if ($width_tier -eq 'narrow') { Get-ShortModel $model_name } else { $model_name }
 $out += "${model_color}${display_model}${reset}"
+
+# effort level — dim parens hug the model name (model attribute, not a standalone segment)
+if ($SHOW_EFFORT -and $effort_level) {
+    $glyph = $effort_glyph[$effort_level]; if (-not $glyph) { $glyph = '●' }
+    $show_label = ($width_tier -ne 'narrow')
+    if ($effort_level -eq 'max') {
+        $text = if ($show_label) { "$glyph max" } else { $glyph }
+        $body = ''; $ri = 0
+        foreach ($ch in $text.ToCharArray()) {
+            if ($ch -eq ' ') { $body += ' '; continue }
+            $body += "$(Color-RGB $effort_rainbow[$ri % $effort_rainbow.Count])$ch"; $ri++
+        }
+    } else {
+        $rgb = $effort_rgb[$effort_level]; if (-not $rgb) { $rgb = '220;220;220' }
+        $lbl = if ($show_label) { "$glyph $effort_level" } else { $glyph }
+        $body = "$(Color-RGB $rgb)${lbl}"
+    }
+    $out += " ${dim}(${reset}${body}${reset}${dim})${reset}"
+}
 
 # cwd (full width only)
 if ($width_tier -eq 'full' -and $cwd) {

@@ -13,6 +13,7 @@ A Windows-native status line script for [Claude Code](https://claude.ai/code), w
 | Section | Meaning |
 |---------|---------|
 | `Sonnet 4.6` | Current model — amber for Opus, blue for Sonnet, cyan for Haiku |
+| `(◐ medium)` | Reasoning effort level, in dim parentheses hugging the model name. Glyph fills with intensity: `○ low` `◐ medium` `● high` `◉ xhigh` `◈ max`; colors match the Claude Code settings UI, with `max` shown as a rainbow. Hidden when the model doesn't support effort |
 | `my-project` | Current working directory folder name |
 | `⎇ main` | Git branch in the current working directory |
 | `✔` / `✗` | Clean or dirty working tree |
@@ -52,10 +53,12 @@ The script automatically adjusts what it shows based on terminal width so the li
 
 | Width | What's shown |
 |-------|-------------|
-| ≥ 150 | Everything: cwd, branch ↑↓, tokens, thinking, cost, 5h + 7d bars |
-| 100–149 | Branch ↑↓, tokens, thinking, cost, 5h bar with reset time |
-| 76–99 | Branch ↑↓, tokens, thinking symbol, 5h bar |
-| < 76 | Short model name, branch, tokens |
+| ≥ 150 | Everything: effort, cwd, branch ↑↓, tokens, thinking, cost, 5h + 7d bars |
+| 100–149 | Effort, branch ↑↓, tokens, thinking, cost, 5h bar with reset time |
+| 76–99 | Effort, branch ↑↓, tokens, thinking symbol, 5h bar |
+| < 76 | Short model name, effort (glyph only), branch, tokens |
+
+> Effort shows at every width; at narrow widths (< 76) only the glyph is kept (the glyph already encodes the level), while wider tiers show "glyph + level".
 
 Claude Code sets `$env:COLUMNS` automatically since v2.1.153, so width detection works out of the box.
 To override manually:
@@ -71,6 +74,7 @@ Edit the config block at the top of `statusline.ps1`:
 ```powershell
 $SHOW_GIT         = $true   # git branch, dirty, ahead/behind
 $SHOW_TOKENS      = $true   # context window bar
+$SHOW_EFFORT      = $true   # reasoning effort level (low/medium/high/xhigh/max)
 $SHOW_THINKING    = $true   # extended thinking indicator
 $SHOW_RATE_LIMITS = $true   # 5h / 7d usage bars
 $BRANCH_MAX_LEN   = 28      # max branch name length before truncation
@@ -104,7 +108,7 @@ Rate limit data (5h / 7d bars) comes directly from Claude Code via the stdin JSO
 Test output directly without launching Claude Code:
 
 ```powershell
-'{"model":{"display_name":"Claude Sonnet 4.6"},"cwd":"C:/Users/user/project","cost":{"total_cost_usd":1.24},"context_window":{"context_window_size":200000,"current_usage":{"input_tokens":45000,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}},"rate_limits":{"five_hour":{"used_percentage":28,"resets_at":1750000000},"seven_day":{"used_percentage":61,"resets_at":1750500000}}}' | powershell -NoProfile -File statusline.ps1
+'{"model":{"display_name":"Claude Sonnet 4.6"},"cwd":"C:/Users/user/project","cost":{"total_cost_usd":1.24},"effort":{"level":"high"},"context_window":{"context_window_size":200000,"current_usage":{"input_tokens":45000,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}},"rate_limits":{"five_hour":{"used_percentage":28,"resets_at":1750000000},"seven_day":{"used_percentage":61,"resets_at":1750500000}}}' | powershell -NoProfile -File statusline.ps1
 ```
 
 ---

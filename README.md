@@ -13,6 +13,7 @@
 | 區段 | 說明 |
 |------|------|
 | `Sonnet 4.6` | 目前使用的模型 — Opus 為琥珀色、Sonnet 為藍色、Haiku 為青色 |
+| `(◐ medium)` | Reasoning effort 等級,以暗色括號緊貼模型名稱。字符依強度填充 `○ low` `◐ medium` `● high` `◉ xhigh` `◈ max`,配色比照 Claude Code 設定畫面;`max` 以彩虹呈現。模型不支援 effort 時自動隱藏 |
 | `my-project` | 目前工作目錄的資料夾名稱 |
 | `⎇ main` | 目前工作目錄的 git 分支名稱 |
 | `✔` / `✗` | 工作目錄乾淨 / 有未提交的變更 |
@@ -52,10 +53,12 @@
 
 | 寬度 | 顯示內容 |
 |------|---------|
-| ≥ 150 | 完整：工作目錄、分支 ↑↓、tokens、thinking、費用、5h + 7d 用量 |
-| 100–149 | 分支 ↑↓、tokens、thinking、費用、5h 用量（含重置時間） |
-| 76–99 | 分支 ↑↓、tokens、thinking 符號、5h 進度條 |
-| < 76 | 縮短模型名、分支、tokens |
+| ≥ 150 | 完整：effort、工作目錄、分支 ↑↓、tokens、thinking、費用、5h + 7d 用量 |
+| 100–149 | effort、分支 ↑↓、tokens、thinking、費用、5h 用量（含重置時間） |
+| 76–99 | effort、分支 ↑↓、tokens、thinking 符號、5h 進度條 |
+| < 76 | 縮短模型名、effort（僅字符）、分支、tokens |
+
+> effort 在所有寬度都顯示；窄寬度（< 76）僅保留字符（字符本身已編碼等級），其餘寬度顯示「字符 + 等級」。
 
 Claude Code 從 v2.1.153 起會自動傳入 `$env:COLUMNS`，大多數情況下無須手動設定。
 若需覆寫，可在 `command` 中加入：
@@ -71,6 +74,7 @@ Claude Code 從 v2.1.153 起會自動傳入 `$env:COLUMNS`，大多數情況下�
 ```powershell
 $SHOW_GIT         = $true   # git 分支、dirty、ahead/behind
 $SHOW_TOKENS      = $true   # context window 進度條
+$SHOW_EFFORT      = $true   # reasoning effort 等級(low/medium/high/xhigh/max)
 $SHOW_THINKING    = $true   # extended thinking 指示器
 $SHOW_RATE_LIMITS = $true   # 5h / 7d 用量限制
 $BRANCH_MAX_LEN   = 28      # 分支名稱最大長度
@@ -104,7 +108,7 @@ $TOKEN_BAR_WIDTH  = 8       # 進度條寬度（full 模式）
 不啟動 Claude Code，直接在終端機測試輸出：
 
 ```powershell
-'{"model":{"display_name":"Claude Sonnet 4.6"},"cwd":"C:/Users/user/project","cost":{"total_cost_usd":1.24},"context_window":{"context_window_size":200000,"current_usage":{"input_tokens":45000,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}},"rate_limits":{"five_hour":{"used_percentage":28,"resets_at":1750000000},"seven_day":{"used_percentage":61,"resets_at":1750500000}}}' | powershell -NoProfile -File statusline.ps1
+'{"model":{"display_name":"Claude Sonnet 4.6"},"cwd":"C:/Users/user/project","cost":{"total_cost_usd":1.24},"effort":{"level":"high"},"context_window":{"context_window_size":200000,"current_usage":{"input_tokens":45000,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}},"rate_limits":{"five_hour":{"used_percentage":28,"resets_at":1750000000},"seven_day":{"used_percentage":61,"resets_at":1750500000}}}' | powershell -NoProfile -File statusline.ps1
 ```
 
 ---
