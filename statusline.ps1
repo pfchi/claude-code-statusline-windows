@@ -11,12 +11,13 @@ $SHOW_RATE_LIMITS = $true   # 5h / 7d usage bars (requires Claude Code v2.1.80+)
 $BRANCH_MAX_LEN   = 28      # max branch name display length
 $GIT_CACHE_SECS   = 10      # git status cache TTL in seconds (increase for large repos)
 $TOKEN_BAR_WIDTH  = 8       # bar width in full-width mode
-$DEBUG_LOG        = $false  # write debug info to $env:TEMP\claude_statusline_debug.txt
+$DEBUG_LOG        = $false  # write debug info to <temp dir>/claude_statusline_debug.txt
 
 # ===== read stdin =====
 [Console]::InputEncoding = [System.Text.Encoding]::UTF8
 $raw = [Console]::In.ReadToEnd()
-$dbg = "$env:TEMP\claude_statusline_debug.txt"
+$TMP_DIR = [IO.Path]::GetTempPath()  # %TEMP% on Windows, $TMPDIR or /tmp elsewhere
+$dbg = Join-Path $TMP_DIR 'claude_statusline_debug.txt'
 if ([string]::IsNullOrWhiteSpace($raw)) {
     if ($DEBUG_LOG) { "[$(Get-Date -f 'HH:mm:ss')] EMPTY stdin" | Out-File -Append -Encoding UTF8 $dbg }
     [Console]::Write('Claude')
@@ -105,7 +106,7 @@ function Format-ResetTime([long]$epoch) {
 function Get-GitInfo([string]$dir) {
     if (-not $dir -or -not (Test-Path $dir)) { return $null }
 
-    $cacheDir = Join-Path $env:TEMP 'claude'
+    $cacheDir = Join-Path $TMP_DIR 'claude'
     $null = New-Item -ItemType Directory -Force -Path $cacheDir
 
     $bytes     = [System.Text.Encoding]::UTF8.GetBytes($dir)
