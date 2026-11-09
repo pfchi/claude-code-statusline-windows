@@ -131,7 +131,7 @@ function Get-GitInfo([string]$dir) {
             $branch = "($short)"
         }
 
-        $dirty    = if (git -C $dir status --porcelain 2>$null) { 'dirty' } else { '' }
+        $dirty    = if (git --no-optional-locks -C $dir status --porcelain 2>$null) { 'dirty' } else { '' }
         $upstream = git -C $dir rev-parse --abbrev-ref '@{upstream}' 2>$null
         $ahead = 0; $behind = 0
 
