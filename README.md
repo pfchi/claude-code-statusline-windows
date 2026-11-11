@@ -12,7 +12,7 @@
 
 | 區段 | 說明 |
 |------|------|
-| `Sonnet 4.6` | 目前使用的模型 — Opus 為琥珀色、Sonnet 為藍色、Haiku 為青色 |
+| `Sonnet 4.6` | 目前使用的模型 — Opus 為琥珀色、Sonnet 為藍色、Haiku 為青色、Fable 為玫瑰粉 |
 | `(◐ medium)` | Reasoning effort 等級,以暗色括號緊貼模型名稱。字符依強度填充 `○ low` `◐ medium` `● high` `◉ xhigh` `◈ max`,配色比照 Claude Code 設定畫面;`max` 以彩虹呈現。模型不支援 effort 時自動隱藏 |
 | `my-project` | 目前工作目錄的資料夾名稱 |
 | `⎇ main` | 目前工作目錄的 git 分支名稱 |

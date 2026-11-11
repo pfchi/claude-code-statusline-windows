@@ -55,6 +55,7 @@ $red     = "$ESC[38;2;235;87;87m"
 $yellow  = "$ESC[38;2;230;200;0m"
 $white   = "$ESC[38;2;220;220;220m"
 $magenta = "$ESC[38;2;198;120;221m"
+$rose    = "$ESC[38;2;224;108;170m"
 $dim     = "$ESC[2m"
 $reset   = "$ESC[0m"
 $sep     = " ${dim}│${reset} "
@@ -195,6 +196,7 @@ function Get-ShortModel([string]$name) {
     if ($name -match 'Opus')   { return 'Opus' }
     if ($name -match 'Sonnet') { return 'Sonnet' }
     if ($name -match 'Haiku')  { return 'Haiku' }
+    if ($name -match 'Fable')  { return 'Fable' }
     return ($name -split '\s+')[-1]
 }
 
@@ -205,6 +207,7 @@ $out = ''
 $model_color = $blue
 if ($model_name -match 'Opus')  { $model_color = $amber }
 if ($model_name -match 'Haiku') { $model_color = $cyan  }
+if ($model_name -match 'Fable') { $model_color = $rose  }
 
 $display_model = if ($width_tier -eq 'narrow') { Get-ShortModel $model_name } else { $model_name }
 $out += "${model_color}${display_model}${reset}"

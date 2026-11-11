@@ -12,7 +12,7 @@ A Windows-native status line script for [Claude Code](https://claude.ai/code), w
 
 | Section | Meaning |
 |---------|---------|
-| `Sonnet 4.6` | Current model — amber for Opus, blue for Sonnet, cyan for Haiku |
+| `Sonnet 4.6` | Current model — amber for Opus, blue for Sonnet, cyan for Haiku, rose for Fable |
 | `(◐ medium)` | Reasoning effort level, in dim parentheses hugging the model name. Glyph fills with intensity: `○ low` `◐ medium` `● high` `◉ xhigh` `◈ max`; colors match the Claude Code settings UI, with `max` shown as a rainbow. Hidden when the model doesn't support effort |
 | `my-project` | Current working directory folder name |
 | `⎇ main` | Git branch in the current working directory |
