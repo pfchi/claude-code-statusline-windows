@@ -1,6 +1,6 @@
 # claude-code-statusline-windows
 
-[Claude Code](https://claude.ai/code) 的 Windows 專用狀態列腳本，以純 PowerShell 撰寫，**零額外依賴**。
+[Claude Code](https://claude.ai/code) 的 Windows 專用狀態列指令碼，以純 PowerShell 撰寫，**零額外依賴**。
 
 > 靈感來源：[isaacaudet/claude-code-statusline](https://github.com/isaacaudet/claude-code-statusline)（bash / macOS·Linux 版本）
 
@@ -13,7 +13,7 @@
 | 區段 | 說明 |
 |------|------|
 | `Sonnet 4.6` | 目前使用的模型 — Opus 為琥珀色、Sonnet 為藍色、Haiku 為青色、Fable 為玫瑰粉 |
-| `(◐ medium)` | Reasoning effort 等級,以暗色括號緊貼模型名稱。字符依強度填充 `○ low` `◐ medium` `● high` `◉ xhigh` `◈ max`,配色比照 Claude Code 設定畫面;`max` 以彩虹呈現。模型不支援 effort 時自動隱藏 |
+| `(◐ medium)` | Reasoning effort 等級,以暗色括號緊貼模型名稱。符號依強度填充 `○ low` `◐ medium` `● high` `◉ xhigh` `◈ max`,配色比照 Claude Code 設定畫面;`max` 以彩虹呈現。模型不支援 effort 時自動隱藏 |
 | `my-project` | 目前工作目錄的資料夾名稱 |
 | `⎇ main` | 目前工作目錄的 git 分支名稱 |
 | `✔` / `✗` | 工作目錄乾淨 / 有未提交的變更 |
@@ -21,8 +21,8 @@
 | `███░░░░░ 77k/200k 38%` | Context window 使用量進度條 |
 | `◆ thinking` / `◇ thinking` | Extended thinking 開啟（◆）/ 關閉（◇） |
 | `$55.66` | 本次工作階段累計費用 |
-| `5h █████░ 89% ↺ 9:50pm` | 5 小時用量限制進度條與重置時刻（當天顯示時間，跨日顯示日期） |
-| `7d ███░░░ 64% ↺ jun 23` | 7 天用量限制進度條與重置日期 |
+| `5h █████░ 89% ↺ 9:50pm` | 5 小時用量限制進度條與重設時刻（當天顯示時間，跨日顯示日期） |
+| `7d ███░░░ 64% ↺ jun 23` | 7 天用量限制進度條與重設日期 |
 
 ---
 
@@ -47,18 +47,18 @@
 
 ---
 
-## 響應式寬度
+## 依寬度調整顯示
 
-腳本會依據終端機寬度自動調整顯示內容，確保不換行。
+指令碼會依據終端機寬度自動調整顯示內容，確保不換行。
 
 | 寬度 | 顯示內容 |
 |------|---------|
 | ≥ 150 | 完整：effort、工作目錄、分支 ↑↓、tokens、thinking、費用、5h + 7d 用量 |
-| 100–149 | effort、分支 ↑↓、tokens、thinking、費用、5h 用量（含重置時間） |
+| 100–149 | effort、分支 ↑↓、tokens、thinking、費用、5h 用量（含重設時間） |
 | 76–99 | effort、分支 ↑↓、tokens、thinking 符號、5h 進度條 |
-| < 76 | 縮短模型名、effort（僅字符）、分支、tokens |
+| < 76 | 縮短模型名、effort（僅符號）、分支、tokens |
 
-> effort 在所有寬度都顯示；窄寬度（< 76）僅保留字符（字符本身已編碼等級），其餘寬度顯示「字符 + 等級」。
+> effort 在所有寬度都顯示；窄寬度（< 76）僅保留符號（符號本身已編碼等級），其餘寬度顯示「符號 + 等級」。
 
 Claude Code 從 v2.1.153 起會自動傳入 `$env:COLUMNS`，大多數情況下無須手動設定。
 若需覆寫，可在 `command` 中加入：
@@ -86,7 +86,7 @@ $TOKEN_BAR_WIDTH  = 8       # 進度條寬度（full 模式）
 
 ## 用量限制
 
-用量限制資訊（5h / 7d 進度條）直接由 Claude Code 透過 stdin JSON 傳入，**不需要打 API**，也不需要 OAuth token。
+用量限制資訊（5h / 7d 進度條）直接由 Claude Code 透過 stdin JSON 傳入，**不需要呼叫 API**，也不需要 OAuth token。
 
 - 需要 **Claude Code v2.1.80 或更新版本**
 - 若欄位不存在（版本過舊或方案不支援），該區段自動隱藏
@@ -98,8 +98,8 @@ $TOKEN_BAR_WIDTH  = 8       # 進度條寬度（full 模式）
 
 - **Windows PowerShell 5.1+**（`powershell`）— Windows 內建，無需另外安裝
 - **Windows Terminal**（建議）— 支援 ANSI 24-bit 色彩
-- **git**（可選）— 顯示分支資訊需要
-- **Claude Code v2.1.80+**（可選）— 顯示用量限制需要
+- **git**（選用）— 顯示分支資訊需要
+- **Claude Code v2.1.80+**（選用）— 顯示用量限制需要
 
 ---
 
